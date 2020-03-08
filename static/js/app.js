@@ -1,6 +1,6 @@
 // Initializes the page with a default plot for first item in dropdown
 function init() {
-    d3.json("../samples.json").then(function(d) {
+    d3.json("./samples.json").then(function(d) {
         var data = d;
         console.log(d)
 
@@ -113,7 +113,7 @@ function optionChanged() {
     // identify index # of selected test subject
     var selIndex = this.selectedIndex;
 
-    d3.json("../samples.json").then(function(d) {
+    d3.json("./samples.json").then(function(d) {
         var data = d;
         console.log(d);
     
