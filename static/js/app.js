@@ -2,7 +2,6 @@
 function init() {
     d3.json("./samples.json").then(function(d) {
         var data = d;
-        console.log(d)
 
         // populate dropdown menu
         d3.select("#selDataset").selectAll("option")
@@ -11,10 +10,12 @@ function init() {
             .text(testSubject => testSubject);
 
         // populate demographic info
-        d3.select("#sample-metadata").selectAll("p")
-        .data(Object.entries(data.metadata[0]))
-        .enter().append("p")
-        .text(info => info);
+        d3.select("#sample-metadata").selectAll("tr")
+            .data(Object.entries(data.metadata[0]))
+            .enter().append("tr")
+            .html(function ([k,v]) {
+                return `<td><strong><font size="1">${k}: </strong></font></td> 
+                <td><font size="1">${v}</font></td>`});
 
         // define plot data
         var values = data.samples[0].sample_values;
@@ -22,10 +23,10 @@ function init() {
         var labels = data.samples[0].otu_labels;
         var scrubs = data.metadata[0].wfreq;
         
-        // sort & slice values & ids
-        var valueSort = values.sort((a,b) => b - a).slice(0,10).reverse();
-        var labelSort = labels.sort((a,b) => b - a).slice(0,10).reverse();
-        var idSort = ids.sort((a,b) => b - a).slice(0,10).reverse();
+        // slice & reverse values & ids
+        var valueSort = values.slice(0,10).reverse();
+        var labelSort = labels.slice(0,10).reverse();
+        var idSort = ids.slice(0,10).reverse();
         var chartLabels = idSort.map(l => "OTU " + l);
 
         var barData = {
@@ -56,8 +57,9 @@ function init() {
             marker: {
                 color: ids,
                 size: values,
-                sizemode: "area"
-            }
+                labels: labels,
+                type: "scatter"
+                }
         };
 
         var bubbleLayout = {
@@ -120,21 +122,24 @@ function optionChanged() {
         console.log(`Selected test subject: ${testSubject}`);
         
         // clear & repopulate demographic info
-        d3.select("#sample-metadata").selectAll("p").remove();
-        d3.select("#sample-metadata").selectAll("p")
+        d3.select("#sample-metadata").selectAll("tr")
+        .remove() // clears previous test subject metadata
         .data(Object.entries(data.metadata[selIndex]))
-        .enter().append("p")
-        .text(info => info);
+        .enter()
+        .append("tr")
+        .html(function ([k,v]) {
+            return `<td><strong><font size="1">${k}: </strong></font></td> 
+            <td><font size="1">${v}</font></td>`});
 
         var values = data.samples[selIndex].sample_values;
         var ids = data.samples[selIndex].otu_ids;
         var labels = data.samples[selIndex].otu_labels;
         var scrubs = data.metadata[selIndex].wfreq;
 
-        // sort & slice values & ids
-        var valueSort = values.sort((a,b) => b - a).slice(0,10).reverse();
-        var idSort = ids.sort((a,b) => b - a).slice(0,10).reverse();
-        var labelSort = labels.sort((a,b) => b - a).slice(0,10).reverse();
+        // slice & reverse values & ids
+        var valueSort = values.slice(0,10).reverse();
+        var idSort = ids.slice(0,10).reverse();
+        var labelSort = labels.slice(0,10).reverse();
         var chartLabels = idSort.map(l => "OTU " + l);
 
         Plotly.restyle("bar", "x", [valueSort]);
